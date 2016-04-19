@@ -60,10 +60,11 @@
 var XMLHttpRequest = require('xmlhttprequest').XMLHttpRequest;
 var Base64         = require('./base64.js').Base64;
 var MD5            = require('./md5.js').MD5;
-var jsdom          = require("jsdom").jsdom;
+var xmldom         = require('xmldom');
 
-document = jsdom("test");
-window = document.defaultView;
+var XMLHttpRequest = global.XMLHttpRequest;
+
+window = window || {};
 window.XMLHttpRequest = XMLHttpRequest;
 window.Base64 = Base64;
 window.MD5 = MD5;
@@ -374,8 +375,8 @@ Strophe = {
             doc = this._getIEXmlDom();
             doc.appendChild(doc.createElement('strophe'));
         } else {
-            doc = document.implementation
-                .createDocument('jabber:client', 'strophe', null);
+            var DOMImplementation = xmldom.DOMImplementation;
+            doc = new DOMImplementation().createDocument('jabber:client', 'strophe', null);
         }
 
         return doc;
@@ -1350,14 +1351,15 @@ Strophe.Request.prototype = {
             }
         } else if (this.xhr.responseText) {
             // Hack for node.
-            var jsdom = require("jsdom").jsdom;
-            var myDoc = jsdom(this.xhr.responseText, {parsingMode: "xml"});
-            node = myDoc.documentElement;
+            Strophe.warn("Response type is text");
+            try {
+                var myDoc = new xmldom.DOMParser().parseFromString(this.xhr.responseText);
+                node = myDoc.documentElement;
+            } catch (e) {
+                Strophe.error("invalid response received");
+                Strophe.error("responseText: " + this.xhr.responseText);
+            }
 
-            Strophe.error("invalid response received");
-            Strophe.error("responseText: " + this.xhr.responseText);
-            Strophe.error("responseXML: " +
-                Strophe.serialize(this.xhr.responseXML));
         }
 
         return node;
