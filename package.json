@@ -4,7 +4,7 @@
   "description": "A Node.js compatible version of Strophe.js, borrowed from https://github.com/dhruvbird/node-xmpp-bosh",
   "main": "strophe.js",
   "engines": {
-    "node": "^4.0.0"
+    "node": ">=4.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
